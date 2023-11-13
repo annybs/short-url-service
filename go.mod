@@ -1,6 +1,6 @@
 module github.com/recipeer/short-url-service
 
-go 1.21.4
+go 1.21.3
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect

@@ -80,7 +80,8 @@ func main() {
 
 	redirects, err := ReadRedirects(config)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	errc := ListenHTTP(config, redirects)
@@ -91,9 +92,8 @@ func main() {
 	select {
 	case err := <-errc:
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	case <-sigc:
 		fmt.Println("Stopped")
-		return
 	}
 }
