@@ -1,0 +1,71 @@
+# Deploy short URL service to a server
+#
+# nginx-proxy should be deployed first: https://github.com/recipeer/nginx-proxy
+
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        type: environment
+      tag:
+        description: 'Image tag'
+        required: true
+        default: develop
+
+env:
+  SERVICE_IMAGE: ghcr.io/recipeer/short-url-service:${{ inputs.tag }}
+  TARGET_START_SH: /tmp/short-url-service.start-${{ github.run_number }}.sh
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare id_rsa
+        run: echo "${{ secrets.DEPLOY_KEY }}" > id_rsa && chmod 600 id_rsa
+
+      - name: Prepare deployment script
+        run: |
+          export CSV="${{ vars.CSV }}"
+          export NETWORK=${{ vars.NETWORK }}
+          export SERVICE_CONTAINER=${{ vars.SERVICE_CONTAINER }}
+          export SERVICE_HOST=${{ vars.SERVICE_HOST }}
+          export SERVICE_IMAGE=${{ env.SERVICE_IMAGE }}
+          export SERVICE_NETWORK_ACCESS=${{ vars.SERVICE_NETWORK_ACCESS }}
+          envsubst < .deploy/start.sh.template | sed 's/£/$/g' > .deploy/start.sh
+
+      - name: Import target SSH public key
+        run: |
+          TARGET=$(echo "${{ vars.SSH_TARGET }}" | awk -F@ '{ print $2 }')
+          mkdir -p ~/.ssh && ssh-keyscan ${TARGET} >> ~/.ssh/known_hosts
+
+      - name: Copy deployment script to server
+        run: scp -vi id_rsa .deploy/start.sh ${{ vars.SSH_TARGET }}:${{ env.TARGET_START_SH }}
+
+      - name: Run deployment script
+        run: ssh -i id_rsa ${{ vars.SSH_TARGET }} bash ${{ env.TARGET_START_SH }}
+
+      - name: Cleanup deployment script
+        run: ssh -i id_rsa ${{ vars.SSH_TARGET }} rm ${{ env.TARGET_START_SH }}
+
+  # https://github.com/recipeer/docs/blob/develop/workflows/discord-notifications.md
+  notify:
+    name: Discord notification
+    uses: recipeer/docs/.github/workflows/discord.yml@develop
+    needs: deploy
+    secrets: inherit
+    if: ${{ always() }}
+    with:
+      repository: ${{ github.repository }}
+      result: ${{ needs.deploy.result }}
+      run_id: ${{ github.run_id }}
+      run_number: ${{ github.run_number }}
+      workflow: ${{ github.workflow }}

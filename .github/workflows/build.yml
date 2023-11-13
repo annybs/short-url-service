@@ -1,0 +1,67 @@
+# Build and publish to GitHub Container Registry
+#
+# https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions#publishing-a-package-using-an-action
+
+name: Build and publish
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - .github/workflows/build.yml
+      - Dockerfile
+      - go.mod
+      - go.sum
+      - main.go
+
+env:
+  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+  # https://github.com/recipeer/docs/blob/develop/workflows/discord-notifications.md
+  notify:
+    name: Discord notification
+    uses: recipeer/docs/.github/workflows/discord.yml@develop
+    needs: build
+    secrets: inherit
+    if: ${{ always() }}
+    with:
+      repository: ${{ github.repository }}
+      result: ${{ needs.build.result }}
+      run_id: ${{ github.run_id }}
+      run_number: ${{ github.run_number }}
+      workflow: ${{ github.workflow }}
