@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ListenHTTP starts an HTTP server that redirects any request for a recognised path to the appropriate URL.
+// ListenHTTP starts an HTTP server that redirects any request for a recognised path to the corresponding URL.
 // The server address and port can be configured with HOST and PORT environment variables, respectively.
 // The default port is 3000.
 func ListenHTTP(config *viper.Viper, redirects map[string]string) <-chan error {
@@ -45,9 +45,9 @@ func ListenHTTP(config *viper.Viper, redirects map[string]string) <-chan error {
 // The CSV data must be in the format:
 //
 //	path,url
-//	/some/path,https://some-url.com/...
+//	/some/path,https://some-url.com
 //
-// The first line is always skipped, allowing for headers.
+// The first line is always skipped, allowing for CSV headings.
 func ReadRedirects(config *viper.Viper) (map[string]string, error) {
 	data := config.GetString("csv")
 	if data == "" {
