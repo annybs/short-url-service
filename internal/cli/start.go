@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/annybs/ezdb"
-	"github.com/recipeer/short-url-service/internal/api"
+	"github.com/annybs/shorty/internal/api"
 )
 
 type StartCmd struct {

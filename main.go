@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/alecthomas/kong"
-	"github.com/recipeer/short-url-service/internal/cli"
+	"github.com/annybs/shorty/internal/cli"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 )
