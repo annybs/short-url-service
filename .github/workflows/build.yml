@@ -2,23 +2,15 @@
 #
 # https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions#publishing-a-package-using-an-action
 
-name: Build and publish
-
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+name: Build Docker image
 
 on:
   workflow_dispatch:
   push:
     branches:
       - develop
-    paths:
-      - .github/workflows/build.yml
-      - Dockerfile
-      - go.mod
-      - go.sum
-      - main.go
+    tags:
+      - v*
 
 env:
   IMAGE_NAME: ${{ github.repository }}
@@ -28,6 +20,9 @@ jobs:
   build:
     name: Build and publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,16 +47,18 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
-  # https://github.com/recipeer/docs/blob/develop/workflows/discord-notifications.md
   notify:
-    name: Discord notification
-    uses: recipeer/docs/.github/workflows/discord.yml@develop
+    name: Send Discord workflow notification
+    runs-on: ubuntu-latest
     needs: build
-    secrets: inherit
-    if: ${{ always() }}
-    with:
-      repository: ${{ github.repository }}
-      result: ${{ needs.build.result }}
-      run_id: ${{ github.run_id }}
-      run_number: ${{ github.run_number }}
-      workflow: ${{ github.workflow }}
+    steps:
+      - name: Send notification
+        uses: annybs/action-notify-discord@v1
+        if: ${{ always() }}
+        with:
+          repository: ${{ github.repository }}
+          result: ${{ needs.build.result }}
+          run-id: ${{ github.run_id }}
+          run-number: ${{ github.run_number }}
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          workflow: ${{ github.workflow }}
