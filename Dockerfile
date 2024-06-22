@@ -1,5 +1,5 @@
 # Build image
-FROM golang:1.21.3 AS build
+FROM golang:1.21 AS build
 
 WORKDIR /build
 
@@ -8,14 +8,16 @@ RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # Copy source
 COPY go.mod go.sum main.go ./
+COPY internal ./internal
 
 # Install dependencies and build
 RUN go install
-RUN go build -o short-url-service
+RUN go build -o shorty
 
 # Distribution image
 FROM debian:12
 
 # Copy binary and set as command
-COPY --from=build /build/short-url-service /usr/local/bin/short-url-service
-CMD ["short-url-service"]
+COPY --from=build /build/shorty /usr/local/bin/shorty
+ENTRYPOINT ["shorty"]
+CMD ["start"]
