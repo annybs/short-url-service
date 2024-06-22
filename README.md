@@ -46,6 +46,14 @@ If you provide `--url|-u|SHORTY_URL` then you can use Shorty as a remote CLI. By
 
 Since all Shorty interaction goes through a REST API, it's easy to use another client (such as [Postman](https://www.postman.com/)) or develop your own client to manage Shorty. This is left as an exercise for the reader.
 
+## Docker usage
+
+This project is packaged as a Docker image in [GitHub Container Registry](https://github.com/annybs/shorty/pkgs/container/shorty) for ease of use.
+
+```sh
+docker run --rm -ti -v './your-data-dir:/shorty/data' -p '3000:3000' ghcr.io/annybs/shorty:develop
+```
+
 ## License
 
 See [LICENSE.md](./LICENSE.md)

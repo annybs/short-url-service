@@ -17,6 +17,9 @@ RUN go build -o shorty
 # Distribution image
 FROM debian:12
 
+# Set default database path
+ENV SHORTY_DATABASE_PATH /shorty/data
+
 # Copy binary and set as command
 COPY --from=build /build/shorty /usr/local/bin/shorty
 ENTRYPOINT ["shorty"]
