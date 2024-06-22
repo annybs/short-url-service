@@ -3,9 +3,21 @@ module github.com/recipeer/short-url-service
 go 1.21.3
 
 require (
+	github.com/alecthomas/kong v0.9.0
+	github.com/annybs/ezdb v0.0.0-20240621195216-a3d8644ce481
+	github.com/annybs/go/validate v0.0.0-20240621205444-13a966214726
+	github.com/rs/zerolog v1.33.0
+	github.com/spf13/viper v1.17.0
+)
+
+require (
+	github.com/annybs/go/rest v0.0.0-20240622161209-822dcc4b52be // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
@@ -14,8 +26,8 @@ require (
 	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.17.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/syndtr/goleveldb v1.0.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
